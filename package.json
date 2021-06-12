@@ -4,8 +4,10 @@
   "description": "Bot for checking reddit new posts and send them to channel",
   "main": "index.js",
   "scripts": {
+    "lint:check": "npx eslint *.js",
+    "lint:fix": "npx eslint --fix *.js",
     "start": "node .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo 'Error: no test specified' && exit 1"
   },
   "repository": {
     "type": "git",
@@ -21,6 +23,7 @@
     "dotenv": "^10.0.0"
   },
   "devDependencies": {
-    "eslint": "^7.28.0"
+    "eslint": "^7.28.0",
+    "eslint-plugin-only-warn": "^1.0.2"
   }
 }
