@@ -1,7 +1,7 @@
-const config = require('./config.json');
+const config = require('../config.json');
 const prefix = config.prefix
 
-const { parseMessage } = require('./helpers.js')
+const { parseMessage, getHelp } = require('./helpers.js')
 const { loadPosts } = require('./reddit-parse.js')
 
 const Discord = require('discord.js');
@@ -20,11 +20,10 @@ client.on('message', message => {
 	const m = parseMessage(message.content)
 	console.log('Received message:', m)
 	if (m.command === 'delete') {
-		if (m.args.length === 1 && +m.args[0] >= 2 && +m.args[0] <= 100) {
+		if (m.args.length === 1 && +m.args[0] >= 1 && +m.args[0] <= 100) {
 			message.channel.bulkDelete(+m.args[0] + 1)
-			message.channel.send('Deleted ' + m.args[0] + ' last messages (delete command not count)')
 		} else {
-			message.channel.send('Number for delete should be from 2 to 99')
+			message.channel.send('Number for delete should be from 1 to 99')
 		}
 	} else if (m.command === 'load') {
 		const sendEmbedImage = (embed_data) => {
@@ -32,12 +31,19 @@ client.on('message', message => {
 				embed: embed_data
 			})
 		}
-		const sendText = (embed, file) => {
+		const sendEmbedTextInFiles = (embed, md, html) => {
 			message.channel.send({
 				embed: embed,
-				files: [file]
+				files: [md, html]
 			})
 		}
-		loadPosts(message.channel.name, m.args[0], sendEmbedImage, sendText)
+		const sendText = text => {
+			message.channel.send(text)
+		}
+		loadPosts(message.channel.name, m.args, sendEmbedImage, sendEmbedTextInFiles, sendText)
+	} else if (m.command === 'help') {
+		message.channel.send('```md\n' + getHelp() + '```')
+	} else {
+		message.channel.send('Unknown command, try `!help`')
 	}
 });

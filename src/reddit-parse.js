@@ -12,7 +12,7 @@ const options = {
 	port: '443'
 }
 
-function parsePosts(data, sendEmbedImage, sendText) {
+function parsePosts(data, sendEmbedImage, sendEmbedTextInFiles) {
 	let embed = {}
 	for (let post of data.data.children) {
 		embed = {
@@ -32,11 +32,12 @@ function parsePosts(data, sendEmbedImage, sendText) {
 		} else {
 			// it's text
 			// https://stackoverflow.com/a/66715211
-			const buffer = Buffer.from(decode(post.data.selftext_html))
-			const attachment = new MessageAttachment(buffer, 'content.html')
-			sendText(embed, attachment)
+			const buffer_md = Buffer.from(decode(post.data.selftext))
+			const attachment_md = new MessageAttachment(buffer_md, 'content.md')
+			const buffer_html = Buffer.from(decode(post.data.selftext_html))
+			const attachment_html = new MessageAttachment(buffer_html, 'content.html')
+			sendEmbedTextInFiles(embed, attachment_md, attachment_html)
 		}
-		break
 	}
 }
 
@@ -45,12 +46,19 @@ function parsePosts(data, sendEmbedImage, sendText) {
  * @param  {[type]} subreddit [description]
  * @param  {[type]} level     hot (default), new, etc
  * @param  {[type]} sendEmbedImage      [description]
+ * @param  {[type]} sendEmbedTextInFiles  [description]
  * @param  {[type]} sendText  [description]
  * @return {[type]}           [description]
  */
-function loadPosts(subreddit, level, sendEmbedImage, sendText) {
-	if (level === undefined) level = 'hot'
-	options.path = `/r/${subreddit}/${level}.json`
+function loadPosts(subreddit, args, sendEmbedImage, sendEmbedTextInFiles, sendText) {
+	let level = '', limit = ''
+	if (args.length === 1) {
+		level = args[0]
+	} else if (args.length === 2) {
+		level = args[0]
+		limit = '?limit=' + args[1]
+	}
+	options.path = `/r/${subreddit}/${level}.json${limit}`
 
 	let raw = ''
 	const req = https.get(options, res => {
@@ -61,7 +69,9 @@ function loadPosts(subreddit, level, sendEmbedImage, sendText) {
 
 		res.on('end', () => {
 			if (res.statusCode === 200) {
-				parsePosts(JSON.parse(raw), sendEmbedImage, sendText)
+				parsePosts(JSON.parse(raw), sendEmbedImage, sendEmbedTextInFiles)
+			} else {
+				sendText(`Error ${res.statusCode}`)
 			}
 		})
 	})
