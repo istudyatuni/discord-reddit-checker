@@ -2,16 +2,16 @@
   "name": "discord-reddit-checker",
   "version": "1.0.0",
   "description": "Bot for checking reddit new posts and send them to channel",
-  "main": "src/index.js",
+  "main": "index.js",
   "scripts": {
-    "lint:check": "npx eslint src/**/*.js",
-    "lint:fix": "npx eslint --fix src/**/*.js",
+    "lint:check": "npx eslint index.js src/**/*.js",
+    "lint:fix": "npx eslint --fix index.js src/**/*.js",
     "start": "node .",
     "test": "echo 'Error: no test specified' && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/istudyatuni/discord-reddit-checker"
   },
   "keywords": [
     "discord-bot"

@@ -1,8 +1,8 @@
-const config = require('../config.json');
+const config = require('./config.json');
 const prefix = config.prefix;
 
-const { parseMessage, getHelp } = require('./helpers.js');
-const { loadPosts } = require('./reddit-parse.js');
+const { parseMessage, getHelp } = require('./src/helpers.js');
+const { loadPosts } = require('./src/reddit-parse.js');
 
 const Discord = require('discord.js');
 const client = new Discord.Client();

@@ -11,7 +11,7 @@ const options = {
 	port: '443',
 };
 
-function parsePosts(data, sendEmbedImage, sendEmbedTextInFiles) {
+function parsePosts(data, sendEmbedImage, sendEmbedTextInFiles, end) {
 	let embed = {};
 	for (const post of data.data.children) {
 		embed = {
@@ -41,6 +41,7 @@ function parsePosts(data, sendEmbedImage, sendEmbedTextInFiles) {
 			sendEmbedTextInFiles(embed, attachment_md, attachment_html);
 		}
 	}
+	end()
 }
 
 /**
@@ -55,13 +56,16 @@ function parsePosts(data, sendEmbedImage, sendEmbedTextInFiles) {
 function loadPosts(subreddit, args, sendEmbedImage, sendEmbedTextInFiles, sendText) {
 	let level = '', limit = '';
 	if (args.length === 1) {
-		level = args[0];
+		[level] = args
 	}
 	else if (args.length === 2) {
-		level = args[0];
-		limit = '?limit=' + args[1];
+		[level, limit] = args
 	}
-	options.path = `/r/${subreddit}/${level}.json${limit}`;
+	options.path = `/r/${subreddit}/${level}.json${
+		limit === ''
+		? limit
+		: '?limit=' + limit
+	}`;
 
 	let raw = '';
 	const req = https.get(options, res => {
@@ -72,7 +76,9 @@ function loadPosts(subreddit, args, sendEmbedImage, sendEmbedTextInFiles, sendTe
 
 		res.on('end', () => {
 			if (res.statusCode === 200) {
-				parsePosts(JSON.parse(raw), sendEmbedImage, sendEmbedTextInFiles);
+				parsePosts(JSON.parse(raw), sendEmbedImage, sendEmbedTextInFiles, () => {
+					sendText(`The end of ${limit} ${level}`)
+				});
 			}
 			else {
 				sendText(`Error ${res.statusCode}`);
